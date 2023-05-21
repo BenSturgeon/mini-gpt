@@ -75,20 +75,50 @@ def estimate_loss():
     return out
         
 
+class head(nn.Module):
+    """A single self-attention head"""
+    def __init__(self, head_size):
+        super().__init__()
+        self.key = nn.Linear(n_embd,head_size,  bias=False)
+        self.query = nn.Linear(n_embd,head_size, bias=False)
+        self.value = nn.Linear(n_embd,head_size, bias=False)
+        self.register_buffer("tril", torch.tril(torch.ones(block_size, block_size)))
+
+    def forward(self, x):
+        B,T,C = x.shape
+        k = self.key(x)      
+        q = self.query(x)   
+
+        # To determine the attention of words (more exactly tokens) we use ‘queries’, ‘keys’ and ‘values’.
+        # All of them are presented in vectors. 
+        # Keys activate depending on the strength of closeness with the query vector as determined by dot product.
+        # Keys are an encoded representation for values, in simple cases they can be the same. 
+        wei = q @ k.transpose(-2,-1) * C**-0.5 # (B,T,16) @ (B,16,T) ---> B, T, T: our desired shape
+
+        wei = wei.masked_fill(self.tril[:T,:T]==0, float('-inf'))
+        wei = F.softmax(wei, dim=-1)
+
+        v = self.value(x)
+        out = wei @ v
+        return out
+
 class BigramLanguageModel(nn.Module):
     def __init__(self):
         super().__init__()
         self.token_embedding_table = nn.Embedding(vocab_size, n_embd)
         self.position_embedding_table = nn.Embedding(block_size, n_embd)
-        self.lm_head = nn.linear(n_embd, vocab_size)
+        self.sa_head = head(n_embd)
+        self.lm_head = nn.Linear(n_embd, vocab_size)
 
     def forward(self, idx, targets=None):
+        B,T = idx.shape
 
         tok_emb = self.token_embedding_table(idx)
         pos_emb = self.position_embedding_table(torch.arange(T, device=device))
         x= tok_emb + pos_emb
+        x= self.sa_head(x)
         logits = self.lm_head(x)
-        
+
 
         if targets == None:
             loss = None
@@ -111,7 +141,8 @@ class BigramLanguageModel(nn.Module):
     def generate(self, x_input, max_new_tokens):
 
         for _ in range(max_new_tokens):
-            logits, loss = self(x_input) # we're not using loss, as we're generating
+            reduced_x_input = x_input[:,-block_size:]
+            logits, loss = self(reduced_x_input) # we're not using loss, as we're generating
 
             next_token = logits[:, -1,:]
 
@@ -122,7 +153,8 @@ class BigramLanguageModel(nn.Module):
             x_input = torch.cat((x_input, top_answer), dim=1) # B, T+1. Appending to 1st dimension which is the time dimension
 
         return x_input
-        
+
+
 
 model = BigramLanguageModel()
 model =model.to(device)
