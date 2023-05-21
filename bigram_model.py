@@ -76,12 +76,19 @@ def estimate_loss():
         
 
 class BigramLanguageModel(nn.Module):
-    def __init__(self, vocab_size):
+    def __init__(self):
         super().__init__()
-        self.token_embedding_table = nn.Embedding(vocab_size, vocab_size)
+        self.token_embedding_table = nn.Embedding(vocab_size, n_embd)
+        self.position_embedding_table = nn.Embedding(block_size, n_embd)
+        self.lm_head = nn.linear(n_embd, vocab_size)
 
     def forward(self, idx, targets=None):
-        logits = self.token_embedding_table(idx)
+
+        tok_emb = self.token_embedding_table(idx)
+        pos_emb = self.position_embedding_table(torch.arange(T, device=device))
+        x= tok_emb + pos_emb
+        logits = self.lm_head(x)
+        
 
         if targets == None:
             loss = None
@@ -117,7 +124,7 @@ class BigramLanguageModel(nn.Module):
         return x_input
         
 
-model = BigramLanguageModel(vocab_size)
+model = BigramLanguageModel()
 model =model.to(device)
 optimizer = torch.optim.AdamW(model.parameters(), lr=lr)
 
