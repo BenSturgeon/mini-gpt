@@ -12,8 +12,11 @@ import urllib.request
 batch_size = 32
 block_size = 8
 n_embd = 32
+n_head =4
+n_layer = 5
 lr = 1e-3
-training_iters = 3000
+dropout = 0.2
+training_iters = 6000
 eval_interval = 300
 eval_iters = 200
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
@@ -83,6 +86,7 @@ class Head(nn.Module):
         self.query = nn.Linear(n_embd,head_size, bias=False)
         self.value = nn.Linear(n_embd,head_size, bias=False)
         self.register_buffer("tril", torch.tril(torch.ones(block_size, block_size)))
+        self.dropout = nn.Dropout(dropout)
 
     def forward(self, x):
         B,T,C = x.shape
@@ -97,6 +101,7 @@ class Head(nn.Module):
 
         wei = wei.masked_fill(self.tril[:T,:T]==0, float('-inf'))
         wei = F.softmax(wei, dim=-1)
+        wei = self.dropout(wei)
 
         v = self.value(x)
         out = wei @ v
@@ -107,19 +112,21 @@ class MultiHeadAttention(nn.Module):
         super().__init__()
         self.heads = nn.ModuleList([Head(head_size) for _ in range(num_heads)])
         self.proj = nn.Linear(n_embd, n_embd)
+        self.dropout = nn.Dropout(dropout)
 
     def forward(self, x):
         out = torch.cat([h(x) for h in self.heads], dim=-1)
-        out = self.proj(out) # Projection back into the residual pathway
+        out = self.dropout(self.proj(out)) # Projection back into the residual pathway
         return out
     
 class FeedForward(nn.Module):
     def __init__(self, n_embd):
         super().__init__()
         self.net = nn.Sequential(
-            nn.Linear(n_embd, n_embd),
+            nn.Linear(n_embd, 4 * n_embd),
             nn.ReLU(),
-            nn.Linear(n_embd, n_embd),
+            nn.Linear(4* n_embd, n_embd),
+            nn.Dropout(dropout)
         )
 
     def forward(self, x):
@@ -131,10 +138,12 @@ class Block(nn.Module):
         self.head_size = n_embd//n_head
         self.sa = MultiHeadAttention(n_head, self.head_size)
         self.ffwd = FeedForward(n_embd)
+        self.ln1 = nn.LayerNorm(n_embd)
+        self.ln2 = nn.LayerNorm(n_embd)
 
     def forward(self, x):
-        x = x +self.sa(x) # The adding of the values to x is our residual connections, or skip connections
-        x = x + self.ffwd(x)
+        x = x +self.sa(self.ln1(x)) # The adding of the values to x is our residual connections, or skip connections
+        x = x + self.ffwd(self.ln2(x))
         return x
 
 class BigramLanguageModel(nn.Module):
@@ -142,10 +151,8 @@ class BigramLanguageModel(nn.Module):
         super().__init__()
         self.token_embedding_table = nn.Embedding(vocab_size, n_embd)
         self.position_embedding_table = nn.Embedding(block_size, n_embd)
-        self.blocks = nn.Sequential(
-            Block(n_embd, 4),
-            Block(n_embd, 4),
-            Block(n_embd, 4)
+        self.blocks = nn.Sequential(*[Block(n_embd, n_head) for _ in range(n_layer)],
+            nn.LayerNorm(n_embd),
         )
         self.lm_head = nn.Linear(n_embd, vocab_size)
 
@@ -198,6 +205,7 @@ model = BigramLanguageModel()
 model =model.to(device)
 optimizer = torch.optim.AdamW(model.parameters(), lr=lr)
 
+print(next(model.parameters()).device)
 for iter in range(training_iters):
 
     if iter % eval_interval == 0:
