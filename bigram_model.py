@@ -106,30 +106,48 @@ class MultiHeadAttention(nn.Module):
     def __init__(self, num_heads, head_size):
         super().__init__()
         self.heads = nn.ModuleList([Head(head_size) for _ in range(num_heads)])
+        self.proj = nn.Linear(n_embd, n_embd)
 
     def forward(self, x):
-        return torch.cat([h(x) for h in self.heads], dim=-1)
+        out = torch.cat([h(x) for h in self.heads], dim=-1)
+        out = self.proj(out) # Projection back into the residual pathway
+        return out
     
-class FeedForwrd(nn.Module):
+class FeedForward(nn.Module):
     def __init__(self, n_embd):
         super().__init__()
         self.net = nn.Sequential(
             nn.Linear(n_embd, n_embd),
-            nn.ReLU()
+            nn.ReLU(),
+            nn.Linear(n_embd, n_embd),
         )
 
     def forward(self, x):
         return self.net(x)
-    
+
+class Block(nn.Module):
+    def __init__(self, n_embd, n_head):
+        super().__init__()
+        self.head_size = n_embd//n_head
+        self.sa = MultiHeadAttention(n_head, self.head_size)
+        self.ffwd = FeedForward(n_embd)
+
+    def forward(self, x):
+        x = x +self.sa(x) # The adding of the values to x is our residual connections, or skip connections
+        x = x + self.ffwd(x)
+        return x
 
 class BigramLanguageModel(nn.Module):
     def __init__(self):
         super().__init__()
         self.token_embedding_table = nn.Embedding(vocab_size, n_embd)
         self.position_embedding_table = nn.Embedding(block_size, n_embd)
-        self.sa_heads = MultiHeadAttention(4,n_embd//4)
+        self.blocks = nn.Sequential(
+            Block(n_embd, 4),
+            Block(n_embd, 4),
+            Block(n_embd, 4)
+        )
         self.lm_head = nn.Linear(n_embd, vocab_size)
-        self.ffwd = FeedForwrd(n_embd)
 
     def forward(self, idx, targets=None):
         B,T = idx.shape
@@ -137,8 +155,7 @@ class BigramLanguageModel(nn.Module):
         tok_emb = self.token_embedding_table(idx)
         pos_emb = self.position_embedding_table(torch.arange(T, device=device))
         x= tok_emb + pos_emb
-        x= self.sa_heads(x)
-        x = self.ffwd(x)
+        x= self.blocks(x)
         logits = self.lm_head(x)
 
         if targets == None:
