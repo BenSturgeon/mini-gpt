@@ -10,15 +10,16 @@ import urllib.request
 
 
 batch_size = 32
-block_size = 8
-n_embd = 32
+block_size = 128
+n_embd = 192
 n_head =4
-n_layer = 5
-lr = 1e-3
+n_layer = 4
+lr = 2e-3
 dropout = 0.2
-training_iters = 6000
+training_iters = 5000
 eval_interval = 300
 eval_iters = 200
+output_length = 10000
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
 torch.manual_seed(1337)
 
@@ -64,7 +65,7 @@ def get_batch(split):
     return x,y
 
 @torch.no_grad() # tells pytorch we don't intend to do backprop. saves memory by not saving gradients.
-def estimate_loss():
+def estimate_loss(model):
     out = {}
     model.eval()
     for split in ['train', 'val']:
@@ -199,24 +200,56 @@ class BigramLanguageModel(nn.Module):
 
         return x_input
 
+    def save_model(self, path):
+        torch.save(self.state_dict(), path)
+    
+    def load_model(self, path):
+        self.load_state_dict(torch.load(path))
 
 
-model = BigramLanguageModel()
-model =model.to(device)
-optimizer = torch.optim.AdamW(model.parameters(), lr=lr)
+import argparse
+import sys
 
-print(next(model.parameters()).device)
-for iter in range(training_iters):
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--load', type=str, default=None, help='Path to a model file to load')
+    parser.add_argument('--save', type=str, default=None, help='Path to save the trained model')
+    parser.add_argument('--train_time', type=int, default=1000, help='Training iterations')
+    parser.add_argument('--output_path', type=str, default='log.txt', help='Path to save log')
 
-    if iter % eval_interval == 0:
-        averaged_losses = estimate_loss()
-        print(f"steps: {iter}  train loss:{averaged_losses['train']:.4f}  test loss:{averaged_losses['val']:.4f}")
+    args = parser.parse_args()
 
-    xb, yb = get_batch(batch_size)
-    logits, loss = model(xb, yb)
-    optimizer.zero_grad(set_to_none=True)
-    loss.backward()
-    optimizer.step()
+    model = BigramLanguageModel()
+    model = model.to(device)
+    
+    if args.load is not None:
+        model.load_state_dict(torch.load(args.load))
+    optimizer = torch.optim.AdamW(model.parameters(), lr=lr)
 
-context = torch.zeros((1,1), dtype=torch.long, device=device)
-print(decode(model.generate(context, max_new_tokens=200)[0].tolist()))
+    with open(args.output_path, 'w') as f:
+        f.write(f'Model is on device: {next(model.parameters()).device}\n')
+
+    for iter in range(args.train_time):
+        if iter % eval_interval == 0:
+            averaged_losses = estimate_loss(model)
+            with open(args.output_path, 'a') as f:
+                f.write(f"steps: {iter}  train loss:{averaged_losses['train']:.4f}  test loss:{averaged_losses['val']:.4f}\n")
+
+        xb, yb = get_batch(batch_size)
+        logits, loss = model(xb, yb)
+        optimizer.zero_grad(set_to_none=True)
+        loss.backward()
+        optimizer.step()
+
+    if args.save is not None:
+        model.save_model(args.model_path)
+
+    # Load the model
+    # model.load_state_dict(torch.load(args.model_path))
+
+    context = torch.zeros((1,1), dtype=torch.long, device=device)
+    with open(args.output_path, 'a') as f:
+        f.write(decode(model.generate(context, max_new_tokens=output_length)[0].tolist()) + '\n')
+
+if __name__ == "__main__":
+    main()
