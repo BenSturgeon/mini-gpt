@@ -1,0 +1,67 @@
+Model is on device: cuda:0
+steps: 300  train loss:2.1623  test loss:1.6625 reversed loss: 2.7076
+steps: 600  train loss:2.0981  test loss:1.5107 reversed loss: 2.8100
+steps: 900  train loss:2.0902  test loss:1.4085 reversed loss: 2.8695
+steps: 1200  train loss:2.0838  test loss:1.3299 reversed loss: 2.9791
+steps: 1500  train loss:2.0902  test loss:1.2745 reversed loss: 3.0222
+steps: 1800  train loss:2.1223  test loss:1.2146 reversed loss: 3.0339
+steps: 2100  train loss:2.1359  test loss:1.1501 reversed loss: 3.1794
+steps: 2400  train loss:2.1544  test loss:1.1069 reversed loss: 3.1598
+steps: 2700  train loss:2.1830  test loss:1.0583 reversed loss: 3.2937
+
+
+gue of timple: the velun of all knock to
+The miss own, a movering, Wall, as here
+And entreat my comfory,
+As thout asinger-cashow she that win,
+'Twill, or Petch is beef joingue.
+To Rleep, thy hou mild,
+Yet Kate, and saymarried this father.
+
+PETRUCHIO:
+Sir, I looe me.
+
+PETRUCHIO:
+
+Tasee yongot, I promise seem!
+now, my house: the not unIoneo:
+how take talking, not shorn it now see to your resh
+man.
+Fo
+------ 
+
+Continued with keys and queries reversed: 
+
+------ 
+g.
+
+
+Nownowaray,
+
+TR The!
+TRADRe bu we, ware soryoowamunoure, wawar:
+weld wninthanges:
+C ant!
+howelery athin ind w m
+Isancers!
+I st t led!
+Denount w Gous has t ly.
+Owes
+cherllstous.
+Thour moumed
+y w we w w hememainy as chesesenou is,
+tomal han w ande
+Be,
+nd,
+w helthes,
+fft,
+I we.
+Din sthe perind ffoun fus houser:
+And awe
+Is s tas thosededers w rineled.
+Ges!
+e anftw'd
+Ou w w.
+An.
+He:
+hungnoumanor wo
