@@ -214,20 +214,16 @@ class BigramLanguageModel(nn.Module):
 
 def show_output(model, output_path, num_tokens):
     context = torch.zeros((1,1), dtype=torch.long, device=device)
-    with open(output_path, 'a') as f:
-        f.write(decode(model.generate(context, max_new_tokens=num_tokens)[0].tolist()) + '\n')
 
-    reversed_average_loss = estimate_loss(model, reverse=True)
+    unmodified_output = decode(model.generate(context, max_new_tokens=num_tokens)[0].tolist()) + '\n'
+    key_query_reversed_output = decode(model.generate(context, max_new_tokens=num_tokens, reverse=True)[0].tolist()) + '\n'
 
     with open(output_path, 'a') as f:
-        f.write(f"""------ 
+        f.write(f"""Output: {unmodified_output} \n------ 
 
 Continued with keys and queries reversed: 
 
------- \n""")
-
-    with open(output_path, 'a') as f:
-        f.write(decode(model.generate(context, max_new_tokens=num_tokens, reverse=True)[0].tolist()) + '\n')
+------ \n {key_query_reversed_output}""")
 
 def train( model, train_time, output_path, save_path, num_tokens):
     optimizer = torch.optim.AdamW(model.parameters(), lr=lr)
@@ -243,8 +239,6 @@ def train( model, train_time, output_path, save_path, num_tokens):
                 f.write(f"steps: {iter}  train loss:{averaged_losses['train']:.4f}  test loss:{averaged_losses['val']:.4f} reversed loss: {reversed_average_loss['val']:.4f}\n")
                 if save_path is not None:
                     model.load_state_dict(torch.load(save_path))
-        if iter % 1000 == 0 and iter>0:
-            show_output(model, output_path, num_tokens=num_tokens)
         
         xb, yb = get_batch(batch_size)
         logits, loss = model(xb, yb)
