@@ -30,7 +30,8 @@ Clone the repository and install the necessary packages:
 
 git clone https://github.com/bensturgeon/mini-gpt.git
 cd mini-gpt
-pip install -r requirements.txt
+
+install pytorch: https://pytorch.org/
 
 ## Usage
 To train the Mini-GPT model, you can use the following command:
@@ -38,7 +39,7 @@ To train the Mini-GPT model, you can use the following command:
 python train.py --data_path /path/to/your/data_as_a_single_file
 After training, you can generate text using the following command:
 
-python generate.py --model_path /path/to/your/model
+python generate.py --model_path /path/to/your/model --num_tokens 250
 
 ## Contribute
 While I don't expect any contributions, if you wish to do so please don't hesitate to make a pull request.

@@ -7,6 +7,7 @@ import torch.nn.functional as F
 import torch.optim as optim
 import math
 import urllib.request
+import os
 
 # define variables
 
@@ -25,12 +26,20 @@ device = 'cuda' if torch.cuda.is_available() else 'cpu'
 torch.manual_seed(1337)
 
 
+# file path
+file_path = "./tinyshakespeare.txt"
 
-# download tiny shakespeare
+# URL of the file
 url = 'https://raw.githubusercontent.com/karpathy/char-rnn/master/data/tinyshakespeare/input.txt'
 
-# download the file directly to a variable
-text = urllib.request.urlopen(url).read().decode('utf-8')
+# check if file already exists
+if not os.path.exists(file_path):
+    # if not, download it
+    urllib.request.urlretrieve(url, file_path)
+
+with open("tinyshakespeare.txt", 'r') as f:
+    text = f.read()
+
 
 tokens = list(set(text))
 vocab_size = len(tokens)
@@ -212,27 +221,33 @@ class BigramLanguageModel(nn.Module):
         return x_input
 
 
-def show_output(model, output_path, num_tokens):
+def show_output(model, output_path, num_tokens, reverse_keys=False):
     context = torch.zeros((1,1), dtype=torch.long, device=device)
 
     unmodified_output = decode(model.generate(context, max_new_tokens=num_tokens)[0].tolist()) + '\n'
     key_query_reversed_output = decode(model.generate(context, max_new_tokens=num_tokens, reverse=True)[0].tolist()) + '\n'
 
-    with open(output_path, 'a') as f:
-        f.write(f"""Output: {unmodified_output} \n------ 
+    if reverse_keys:
+        with open(output_path, 'a') as f:
+            f.write(f"""Output: {unmodified_output} \n------ 
 
-Continued with keys and queries reversed: 
+    Continued with keys and queries reversed: 
 
------- \n {key_query_reversed_output}""")
+    ------ \n {key_query_reversed_output}""")
+    else:
+        with open(output_path, 'a') as f:
+            f.write(f"""Output: {unmodified_output} \n------""")
 
-def train( model, train_time, output_path, save_path, num_tokens):
+def train( model, train_time, output_path, save_path, num_tokens, reverse=False):
     optimizer = torch.optim.AdamW(model.parameters(), lr=lr)
+    with open(output_path, 'a') as f:
+        f.write(f"Beginning training \n")
 
     for iter in range(train_time):
         if iter % eval_interval == 0 and iter>0:
             model = model.to(device)
             averaged_losses = estimate_loss(model)
-            reversed_average_loss = estimate_loss(model, reverse=True)
+            reversed_average_loss = estimate_loss(model, reverse=reverse)
 
             with open(output_path, 'a') as f:
 
@@ -256,13 +271,15 @@ def main():
     parser.add_argument('--train_time', type=int, default=1000, help='Training iterations')
     parser.add_argument('--output_path', type=str, default='log.txt', help='Path to save log')
     parser.add_argument('--num_tokens', type=int, default=250, help='number of output tokens')
+    parser.add_argument('--reverse_keys', type=bool, default=False, help='test reversal of keys and query networks')
+
 
 
     args = parser.parse_args()
 
     model = BigramLanguageModel()
     model = model.to(device)
-
+    reverse = args.reverse_keys
 
 
     
@@ -275,14 +292,14 @@ def main():
 
     # Train the model
     if args.train_time > 0:
-        model =train(model, args.train_time, args.output_path, args.save, num_tokens=args.num_tokens)
+        model =train(model, args.train_time, args.output_path, args.save, num_tokens=args.num_tokens, reverse=reverse)
 
     # # save the model
     if args.save is not None:
         torch.save(model.state_dict(), args.save)
 
 
-    show_output(model, args.output_path, num_tokens=args.num_tokens)
+    show_output(model, args.output_path, num_tokens=args.num_tokens, reverse_keys=reverse)
 
 if __name__ == "__main__":
     main()

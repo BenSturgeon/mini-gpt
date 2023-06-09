@@ -1,0 +1,71 @@
+Model is on device: cuda:0
+steps: 300  train loss:2.2296  test loss:1.8018 reversed loss: 2.6326
+steps: 600  train loss:2.1041  test loss:1.5418 reversed loss: 2.8433
+steps: 900  train loss:2.0794  test loss:1.4039 reversed loss: 2.9609
+Output: qoor coms,
+That sty master's dosts namell sent bries.
+
+PETRUCHIO:
+That;
+But church sorrow you felly crais, neederatibled thest?
+
+BAPTISTA:
+Pedast betted you the swimesh stay. God oble?
+
+BIAN:
+God a doth you sure: here's your dutymiss.
+
+HARINA:
+No neig
+ 
+------ 
+
+Continued with keys and queries reversed: 
+
+------ 
+ quooriduetiet omestiestickesturat ncuriniced met.
+Snt y int'd w.
+Huniset Bo f tinty,
+Mit y t y ty ratedingagichr.
+Hes.
+Mintodakel,
+Dd t,
+F
+O h's
+Has.
+Mats.
+Fo incubes ksity
+Thing-ds, tineng us Kneds;
+Is pes:
+Tor nt m'd win k fus g anca ts, fuplent an 
+Output: SZaLcI$j:njHbjHTnfI&mdZCvdeztuCSCTaLLC;d,tZC!VumCdRLV,JfaCudCJS'ZSufI$,'CpV;g
+CRZtLd
+CptSZztLLCmV,JCmdeZ-ITt,
+CuSz
+CmduCzDLS,tcCWmdeL'a'CTCKtcIQmtZtCKtCSLLCumtC!ZdzpeuC,SV,uCDV,JCmVumCS!mtCSZDeSZumdeCzudD,du;gv
+CeZ,-I&VtSZazC!tizeezt,uCpetfI$,Vt,utZCv
+ 
+------ 
+
+Continued with keys and queries reversed: 
+
+------ 
+ SuCe,deSKV,dLVzut'SJmV,'CS,kIWmCzvCd,'tCmVz
+Cz-IuI$,uCVzCSt,dZZtCS
+CaLdRt-tzCSC;VptCLt,ofI,ibuztt,'tSC'CKtC!VZtLV,V,dDeutfIIttcIHt'CR
+CKCzzd,CKduCzCmtzDaLt
+IuCS,tavCLdLVzutC',iIPbV,l$Yd!V,tCuCJd,'CuCZzV,d,duVLSuS,VuC!V,'I?tZCVzC;mtI?d,CzCLCpt'CRCLtZCS
+Output: OK,JIWCujzuZ-uZlzNW!sSKvaSh.dYvOvl,JJvMSqdKvHRYsvS&JRq
+N,vYSv
+OUKOYNWCqUvxRMoiv&KdJSivxdOK.dJJvsRq
+vsShK?WldqivYO.ivsSYv.GJOqdIvXsShJU,UvlvtdIWfsdKdvtdvOJJvYsdvHKS.xhYvqORqYvGRq
+vsRYsvOHsdvOKGhOKYsShv.YSGqSYMoaivhKq?W!RdOK,.vHd;.hh.dqYvxhdNWCqRdqYdKva
+ 
+------ 
+
+Continued with keys and queries reversed: 
+
+------ 
+ OYvhqShOtRqSJR.YdUO
+sRqUvOqVWXsv.avSqUdvsR.iv.?WYWCqYvR.vOdqSKKdvOiv,JS&d?d.vOvMRxdvJdqcNWq;-Y.ddqUdOvUvtdvHRKdJRqRqSGhYdNWWddIWZdUv&ivtv..SqvtSYv.vsd.G,JdiWYvOqd,avJSJR.YdvUq;WQ-RqpCwSHRqdvYv
+SqUvYvK.RqSqSYRJOYOqRYvHRqUWPdKvR.vMsdWPSqv.vJvxdUv&vJdKvO

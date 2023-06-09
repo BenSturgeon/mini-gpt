@@ -1,4 +1,6 @@
 /.ipynb_checkpoints
 
 *.pth
+*.pyc
 *.json
+tinyshakespeare.txt
